@@ -1,0 +1,74 @@
+import pygame
+import random
+
+# Initialize pygame
+pygame.init()
+
+# Game Constants
+WIDTH, HEIGHT = 800, 600
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+PLAYER_COLOR = (0, 255, 0)
+ENEMY_COLOR = (255, 0, 0)
+
+# Setup Screen
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("AIcade Challenge Game")
+
+# Player Class
+class Player(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((50, 50))
+        self.image.fill(PLAYER_COLOR)
+        self.rect = self.image.get_rect(center=(WIDTH // 2, HEIGHT - 60))
+
+    def update(self, keys):
+        if keys[pygame.K_LEFT] and self.rect.left > 0:
+            self.rect.x -= 5
+        if keys[pygame.K_RIGHT] and self.rect.right < WIDTH:
+            self.rect.x += 5
+
+# Enemy Class
+class Enemy(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        self.image = pygame.Surface((40, 40))
+        self.image.fill(ENEMY_COLOR)
+        self.rect = self.image.get_rect(center=(random.randint(40, WIDTH - 40), 0))
+
+    def update(self):
+        self.rect.y += 5
+        if self.rect.top > HEIGHT:
+            self.rect.y = 0
+            self.rect.x = random.randint(40, WIDTH - 40)
+
+# Setup Game Objects
+player = Player()
+enemies = pygame.sprite.Group()
+all_sprites = pygame.sprite.Group(player)
+
+for _ in range(5):
+    enemy = Enemy()
+    enemies.add(enemy)
+    all_sprites.add(enemy)
+
+# Game Loop
+running = True
+clock = pygame.time.Clock()
+while running:
+    screen.fill(WHITE)
+    keys = pygame.key.get_pressed()
+    
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    
+    player.update(keys)
+    enemies.update()
+    
+    all_sprites.draw(screen)
+    pygame.display.flip()
+    clock.tick(30)
+
+pygame.quit()
